@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
-const cors = require('cors'); // ✅ CORS middleware
+const cors = require('cors'); 
 
 const app = express();
 const PORT = 5000;

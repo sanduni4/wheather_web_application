@@ -1,48 +1,39 @@
-const express = require('express');
-const axios = require('axios');
-const fs = require('fs');
-const cors = require('cors'); 
+const express = require("express");
+const cors = require("cors");
+const weatherRoute = require("./routes/weatherRouter");
 
 const app = express();
-const PORT = 5000;
-const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace this
 
-let cache = null;
-let lastFetched = null;
-
-// ✅ Use cors middleware here
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-app.get('/weather', async (req, res) => {
-  const now = Date.now();
-  const fiveMinutes = 5 * 60 * 1000;
 
-  if (cache && lastFetched && now - lastFetched < fiveMinutes) {
-    return res.json(cache);
-  }
-
-  try {
-    const cities = JSON.parse(fs.readFileSync('./cities.json'));
-    const cityIds = cities.map(c => c.CityCode).join(',');
-    const response = await axios.get(
-      `https://api.openweathermap.org/data/2.5/group?id=${cityIds}&units=metric&appid=${API_KEY}`
-    );
-
-    const result = response.data.list.map(city => ({
-      name: city.name,
-      temp: city.main.temp,
-      description: city.weather[0].description
-    }));
-
-    cache = result;
-    lastFetched = now;
-
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch weather data" });
-  }
+app.get("/", (req, res) => {
+  res.json({
+    message: "Weather API Server is running!",
+    endpoints: {
+      weather: "/weather - Get all cities weather data",
+      health: "/health - Server health check"
+    },
+    status: "OK"
+  });
 });
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    timestamp: new Date().toISOString() 
+  });
+});
+
+// Weather routes
+app.use("/weather", weatherRoute);
+
+const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📡 Weather endpoint: http://localhost:${PORT}/weather`);
+  console.log(`❤️  Health check: http://localhost:${PORT}/health`);
 });

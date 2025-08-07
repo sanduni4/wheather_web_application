@@ -23,7 +23,7 @@ const fetchWeatherData = async () => {
     const weatherPromises = cityList.map(async (city) => {
       const url = `https://api.openweathermap.org/data/2.5/weather?id=${city.CityCode}&units=metric&appid=${API_KEY}`;
       console.log("🌐 Requesting:", url);
-      
+
       try {
         const response = await axios.get(url);
         const data = response.data;
@@ -33,6 +33,18 @@ const fetchWeatherData = async () => {
           cityName: data.name,
           temp: data.main.temp,
           status: data.weather[0].main,
+          description: data.weather[0].description,
+          pressure: data.main.pressure,
+          humidity: data.main.humidity,
+          visibility: data.visibility,
+          sys: data.sys.country,
+          temp_min: data.main.temp_min,
+          temp_max: data.main.temp_max,
+          wind_speed: data.wind.speed,
+          wind_deg: data.wind.deg,
+          sunrise: data.sys.sunrise,
+          sunset: data.sys.sunset,
+          date: data.dt,
         };
       } catch (err) {
         console.error(`Failed to fetch weather for ${city.CityName} (${city.CityCode})`);
